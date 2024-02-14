@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+import io
 
 def process_csv(file, mult):
     df = pd.read_csv(file)
@@ -10,28 +12,22 @@ def process_csv(file, mult):
 def main():
     st.title("CSV Datei bearbeiten")
 
-    # Datei hochladen
     uploaded_file = st.file_uploader("Datei auswählen", type=["csv"])
-
+    mult = st.number_input("Fehler 1:", value=0, step=1)
     if uploaded_file is not None:
-        # Daten bearbeiten
-        df = process_csv(uploaded_file)
+        
+        df = process_csv(uploaded_file, mult)
 
-        # Tabelle anzeigen
-        st.dataframe(df)
-
-        # Download-Link für die bearbeitete Datei
+        #to_csv
         csv_as_string = df.to_csv(index=False)
         csv_as_bytes = io.BytesIO(csv_as_string.encode())
-        st.download_button("Daten herunterladen", csv_as_bytes, "bearbeitete_daten.csv")
+        st.download_button("CSV herunterladen", csv_as_bytes, "bearbeitete_daten.csv")
 
-        # Eingabefelder für Zahlenfehler
-        st.header("Zahlenfehler korrigieren")
-
-        # Beispiel für drei Zahlenfehler (kann angepasst werden)
-        error1 = st.number_input("Fehler 1:", value=0, step=1)
-        error2 = st.number_input("Fehler 2:", value=0, step=1)
-        error3 = st.number_input("Fehler 3:", value=0, step=1)
+        #to_excel
+        excel_as_bytes = io.BytesIO()
+        df.to_excel(excel_as_bytes, index=False, sheet_name='Sheet1')
+        excel_as_bytes.seek(0)
+        st.download_button("Excel herunterladen", excel_as_bytes, "bearbeitete_daten.xlsx")
 
 if __name__ == "__main__":
     main()
